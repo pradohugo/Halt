@@ -50,6 +50,11 @@ class Usuario(AbstractUser):
 
 
 class UsuarioSeguimento(models.Model):
+
+    def clean(self):
+        if self.seguidor == self.seguido:
+            raise ValidationError("Um usuário não pode seguir a si mesmo.")
+
     seguidor = models.ForeignKey(
         Usuario, on_delete=models.CASCADE, related_name='seguindo'
     )
