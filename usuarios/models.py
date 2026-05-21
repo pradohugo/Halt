@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.core.exceptions import ValidationError
 
 class SexoChoices(models.TextChoices):
     MASCULINO = 'M', 'Masculino'
@@ -51,10 +51,6 @@ class Usuario(AbstractUser):
 
 class UsuarioSeguimento(models.Model):
 
-    def clean(self):
-        if self.seguidor == self.seguido:
-            raise ValidationError("Um usuário não pode seguir a si mesmo.")
-
     seguidor = models.ForeignKey(
         Usuario, on_delete=models.CASCADE, related_name='seguindo'
     )
@@ -68,6 +64,11 @@ class UsuarioSeguimento(models.Model):
         verbose_name = 'Seguimento'
         verbose_name_plural = 'Seguimentos'
         unique_together = ('seguidor', 'seguido')
+
+    
+    def clean(self):
+        if self.seguidor == self.seguido:
+            raise ValidationError("Um usuário não pode seguir a si mesmo.")
 
     def __str__(self):
         return f'{self.seguidor} → {self.seguido}'
